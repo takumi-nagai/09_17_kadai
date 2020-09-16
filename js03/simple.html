@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Chatアプリ</title>
+<link rel="stylesheet" href="css/sample.css">
+</head>
+<body>
+
+<!-- コンテンツ表示画面 -->
+<header>
+  <h3>LINE風アプリ</h3>
+</header>
+
+<div>
+    <span>日時：<div id="view"></div></span>
+    <div id="user">
+    <div>名前：<input type="text" id="uname"></div>
+        <ul id="icon">
+          <li class="imgs" data-img="0"><img class="img1" src="imgs/buke.png" ></li>
+          <li class="imgs" data-img="1"><img class="img1" src="imgs/tuku.png" ></li>
+          <li class="imgs" data-img="2"><img class="img1" src="imgs/caram.png" ></li>
+        </ul>
+    </div>
+    <div><textarea  id="text" cols="45" rows="5"></textarea></div>
+    <div id="btn"> 
+      <button id="send">送信</button>
+      <button id="delete">削除</button>
+      <button id="toTop">トップ</button>
+    </div>   
+    <div id="output"></div>
+    <div id="said">今日のサンクチュアリ</div>
+    <div id="r"></div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<!--/ コンテンツ表示画面 -->
+
+
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!-- JQuery -->
+
+
+<!--** 以下Firebase **-->
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyD6yrAuFQ09bFIQPpFp_5k0bL0UT6vQN9Y",
+    authDomain: "dev17-e9a3e.firebaseapp.com",
+    databaseURL: "https://dev17-e9a3e.firebaseio.com",
+    projectId: "dev17-e9a3e",
+    storageBucket: "dev17-e9a3e.appspot.com",
+    messagingSenderId: "88127168994",
+    appId: "1:88127168994:web:c9fe9a5207a71c310099bb"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const ref = firebase.database().ref();
+  let eMonth = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+let week   = ["日", "月", "火", "水", "木", "金", "土"];
+
+//日時取得
+let now = new Date();            //日付取得準備（必須）！！
+let year = now.getFullYear();    //年
+let month = ("0"+(now.getMonth() + 1)).slice(-2);  //月+１を足す
+let date = ("0"+now.getDate()).slice(-2);        //日
+let day = now.getDay();          //曜日（数値）
+let h = ("0"+(now.getHours())).slice(-2) ;          //時
+let m = ("0"+(now.getMinutes())).slice(-2);        //分
+
+//日時表示文字列の作成
+let str = month + "-" + date + "(" + week[day] + ") " + h + ":" + m ;
+let str1 = year + "-" + month + "-" + date;
+
+$('#view').html(str);
+// console.log(str);
+
+// アイコン処理
+let d = 0;
+const img = ["buke.png","tuku.png","caram.png"];
+
+$(".imgs").on("click",function(){
+  d = $(this).attr("data-img");
+  console.log(d);
+});
+
+
+// 送信処理
+function send(){
+    const uname = $("#uname").val();
+    const text = $("#text").val();
+    const date = str
+    const msg = {
+        uname:uname,
+        icon:d,
+        text:text,
+        date:date
+    }
+    ref.push(msg);
+}
+
+// 文字を送信
+
+
+$("#send").on("click",function(){
+  send();  
+  $('#output').scrollTop($('#output')[0].scrollHeight);
+});
+
+ref.on("child_added",function(data){
+    const v = data.val();
+    const k = data.key;
+    const h = '<p class="talk"><button class="del1">✖</button>'+v.date+'<br>'+'<img  src = "imgs/' + img[v.icon]+'">'+v.uname +'<br>' + v.text　+ '</p><br>';
+    $("#output").append(h);
+})
+
+$('#toTop').click(function() {
+   $('#output').scrollTop(0);
+
+})
+
+
+$("#text").on("keydown",function(e){
+   if(e.keyCode == 13) {
+    send();      
+   }
+});
+
+//削除
+
+
+$("#delete").on("click", function(){
+    ref.remove();
+    location.reload();
+});
+
+
+// 乱数発生
+const R = Math.ceil(Math.random()*60) ;
+
+
+// 名言
+const S1 = "『いつまでも染みのついたジイさん達の時代じゃねえ！！』";
+const S2 = "『いや。。。たとえ相手が虎でもでしょう。。。』";
+const S3 = "『普通の人間が３０年かかるところを。。。１日でやれるからですよ』";
+const S4 = "『まあ見ていろ！この日本にも必ず絵空事を描けるヒーローがあらわれる』";
+const S5 = "『４０歳で私が首相になり。。。閣僚は全員３０代で固めます』";
+const S6 = "『どんな事があっても、オレは止まっちゃならねえんだ。。。』";
+const S7 = "『オレにはやつの人生が乗っかってんだ！』";
+const S8 = "『泣きたいぐらい、痛いです・・・』";
+const S9 = "『夢があるから。。。男も、女も、生きてられるんだ。。。』";
+const S10 = "『馬鹿は馬鹿のままでいい。。。そこまで堕ちたらカアちゃんに張っ倒されるだよ！！』";
+const S11 = "『・・・オレはまだ飢えているんスよ！』";
+const S12 = "『俺たちにゃあ、意志があるんですよ幹事長。。。』";
+const S13 = "『立ち止まったら夢もそこまでだ。行くだけ行って潰れたら納得もいく』";
+const S14 = "『安定を求めるか、それとも何かを動かすか。。人の一生はそんなに長かねえぜ！！』";
+const S15 = "『人間の創れなくなった今の日本を引っくり返します！』";
+const S16 = "『ネズミが吠えても猫には鳴いているとしか聞こえない。 猫が吠えてもライオンには鳴いているとしか聞こえない。 まず一人一人が獅子になる事！！』";
+const S17 = "『オレは逃げようとは思わない。。。 どんな障害があろうがオレはオレの道を進む！！ だが。。もしその中にあんたが気に入らない事があったら。。。 いつでも逮捕するがいい！！』";
+const S18 = "『オレが日本に帰ってきて。。初めて日本人を見た時。。。こいつら‘生きる”って事をどう考えているんだろう。。。まずそう思った。』";
+const S19 = "『オレがやろうとしているのは今の繁栄ではない。日本の。。日本人の未来なんだ！！』";
+const S20 = "『男が背負った重っさってのは、そいつがそのままその男の重さになる。。。』";
+const S21 = "『長い間、同じ服を着ていたら　服も汚れ肌も死ぬ。。。脱皮し新しい服をまとわなければ、ただ老いさらばえて滅びる。。。』";
+const S22 = "『生き残る奴は、生き残るべくして生き残る。。。か。。。』";
+const S23 = "『だが、どんな荷物も持ち上げられなきゃ話にならねえ。前に進むにゃ既成の勢力飲み込んで、こっちがデカくなるしかないんだ！』";
+const S24 = "『死んじまったら終わりだよ。。。人間、死んじまったら何も残らない。。。俺は生きるぜ、宮村さん。。。 自分の夢果たすためなら、例え、てめえの手足喰ったって喰ったって生きのびる！！』";
+const S25 = "『要は‘生きる”という事です！』 『富める国、貧しい国。。。そしてその国民達。。。国や国民がどうやって生きていくのか。。。どうしたら生きているという実感を得られるのか。。。』";
+const S26 = "『一歩一歩前に進んでいかないと滑り落ちたり、大きな岩に叩き落とされたりするんだよ。。。』";
+const S27 = "『人一人、簡単に殺せるこんな犬でも、手なづける事ができる。。。一番厄介なのは絶対に尾をふらねえ犬だ。。。』";
+const S28 = "『力の前に尾を振るのは簡単だ。。。振りたくなくても、振ってしまえば生きられる。 だがな、それは生きているんじゃねえ。。。生かされているんだよ！！』";
+const S29 = "『力に翻弄され、てめえの意思とてめえの手足で動けなきゃ、屈辱と後悔しか残らねえ』";
+const S30 = "『。。。期待していい。。。』";
+const S31 = "『人の上に立つ人間。。。それも、極道という組織の中で昇っていく人間の凄さが解る。。。』";
+const S32 = "『老いは本能的に‘守り”に向かう。　そして、守りは必ずや破綻を生む。守りに入った人間に脅威はない！』";
+const S33 = "『去るも器量、継ぐも器量。。。そして、守り切るのもまた器量！』";
+const S34 = "『政治家っていうのはいざとなったら、頭から糞水ひっかぶる覚悟が必要なんだ！ お前にその度量があるか！？政権という席（ポスト）をただの甘い席と思うんじゃない！！』";
+const S35 = "『頭に立ったこれからが、俺の汚れる時なんですよ！』";
+const S36 = "『俺たちがカンボジアから帰って、初めて日本人を見た時、希望が見えなかった。日本人に希望が見えなかったんだ。 何が欠けているのか、何が必要なのか。。。』 『生きた人間を創る！！それが二人が出した結論だ！！』";
+const S37 = "『あいつらが死んだ時、笑う奴１００人より、泣く奴１００人が周りにいる。。。そういう人間にしたいんだよ。。。』";
+const S38 = "『信じろ！お前が好きになった男だ！俺を信じろ！』";
+const S39 = "『もし浅見があなたの条件に尾を振るような男なら。。俺も浅見もカンボジアから生きて還ってはこれなかった。。』 『一度権力の軍門に下った人間はそこで自分の強さと意思を失う。。例え２０年かかっても自分の意志で生き。。築き上げる。。それが聖域（サンクチュアリ）だ』";
+const S40 = "『要はお前が北条を好きか嫌いか。。それだけなんだよ！』";
+const S41 = "『その女が納まるところへ納まったって訳だ・・・。喜ぶしかねえだろう・・・。』";
+const S42 = "『それが国民の義務であり、責任だ！！』";
+const S43 = "『・・・いいな・・・北条にだけは言わないでくれ・・・』";
+const S44 = "『おめえはずっと自分しか好きになれなかった・・。それだけの違いだ・・・。』";
+const S45 = "『だが、どんな苦境の中でも陽は必ず昇った・・・』";
+const S46 = "『一度後ろを向いたら、昇る陽は見えない・・・』";
+const S47 = "『ですがもっと根本にあるのは“日本人”という誇りでしょう・・』";
+const S48 = "『歪んだ教育を与えれば、当然その教育も歪む！』";
+const S49 = "『北条、伊吹にも、彼らの“生き方”の信念がある・・』";
+const S50 = "『今日まで生きてきた・・オレ達二人のルールだ』";
+const S51 = "『・・オ、オレの尻（ケツ）・・ちったあ綺麗になったかな・・・』";
+const S52 = "『・・線香一本あげたくてな・・』";
+const S53 = "『あいつは振り返らない・・。常に今置かれている場所から前を見る・・』";
+const S54 = "『私達政治家自身が改革、進歩するのと同時に、国民自身も改革、進歩しなければいけないんです！！』";
+const S55 = "『命懸けで今の日本に“何か”を残そうと突っ走ってんだよ』";
+const S56 = "『ありがとうよ、ネエちゃん・・・』";
+const S57 = "『和僑！！』";
+const S58 = "『信じているんですよ。。私の惚れた男はどんな逆境にも負けない！必ず甦る！』";
+const S59 = "『公選初代首相は浅見千秋を措いて他に無い！！』";
+const S60 = "『もう眠っていいか・・・？』";
+
+if(R == 1){
+    $("#r").html(S1);
+  }
+  if(R == 2){
+    $("#r").html(S2);
+  }
+  if(R == 3){
+    $("#r").html(S3);
+  }
+  if(R == 4){
+    $("#r").html(S4);
+  }
+  if(R == 5){
+    $("#r").html(S5);
+  }
+  if(R == 6){
+    $("#r").html(S6);
+  }
+  if(R == 7){
+    $("#r").html(S7);
+  }
+  if(R == 8){
+    $("#r").html(S8);
+  }
+  if(R == 9){
+    $("#r").html(S9);
+  }
+  if(R == 10){
+    $("#r").html(S10);
+  }
+  if(R == 11){
+    $("#r").html(S11);
+  }
+  if(R == 12){
+    $("#r").html(S12);
+  }
+  if(R == 13){
+    $("#r").html(S13);
+  }
+  if(R == 14){
+    $("#r").html(S14);
+  }
+  if(R == 15){
+    $("#r").html(S15);
+  }
+  if(R == 16){
+    $("#r").html(S16);
+  }
+  if(R == 17){
+    $("#r").html(S17);
+  }
+  if(R == 18){
+    $("#r").html(S18);
+  }
+  if(R == 19){
+    $("#r").html(S19);
+  }
+  if(R == 20){
+    $("#r").html(S20);
+  }
+  if(R == 21){
+    $("#r").html(S21);
+  }
+  if(R == 22){
+    $("#r").html(S22);
+  }
+  if(R == 23){
+    $("#r").html(S23);
+  }
+  if(R == 24){
+    $("#r").html(S24);
+  }
+  if(R == 25){
+    $("#r").html(S25);
+  }
+  if(R == 26){
+    $("#r").html(S26);
+  }
+  if(R == 27){
+    $("#r").html(S27);
+  }
+  if(R == 28){
+    $("#r").html(S28);
+  }
+  if(R == 29){
+    $("#r").html(S29);
+  }
+  if(R == 30){
+    $("#r").html(S30);
+  }
+  if(R == 31){
+    $("#r").html(S31);
+  }
+  if(R == 32){
+    $("#r").html(S32);
+  }
+  if(R == 33){
+    $("#r").html(S33);
+  }
+  if(R == 34){
+    $("#r").html(S34);
+  }
+  if(R == 35){
+    $("#r").html(S35);
+  }
+  if(R == 36){
+    $("#r").html(S36);
+  }
+  if(R == 37){
+    $("#r").html(S37);
+  }
+  if(R == 38){
+    $("#r").html(S38);
+  }
+  if(R == 39){
+    $("#r").html(S39);
+  }
+  if(R == 40){
+    $("#r").html(S40);
+  }
+  if(R == 41){
+    $("#r").html(S41);
+  }
+  if(R == 42){
+    $("#r").html(S42);
+  }
+  if(R == 43){
+    $("#r").html(S43);
+  }
+  if(R == 44){
+    $("#r").html(S44);
+  }
+  if(R == 45){
+    $("#r").html(S45);
+  }
+  if(R == 46){
+    $("#r").html(S46);
+  }
+  if(R == 47){
+    $("#r").html(S47);
+  }
+  if(R == 48){
+    $("#r").html(S48);
+  }
+  if(R == 49){
+    $("#r").html(S49);
+  }
+  if(R == 50){
+    $("#r").html(S50);
+  }
+  if(R == 51){
+    $("#r").html(S51);
+  }
+  if(R == 52){
+    $("#r").html(S52);
+  }
+  if(R == 53){
+    $("#r").html(S53);
+  }
+  if(R == 54){
+    $("#r").html(S54);
+  }
+  if(R == 55){
+    $("#r").html(S55);
+  }
+  if(R == 56){
+    $("#r").html(S56);
+  }
+  if(R == 57){
+    $("#r").html(S57);
+  }
+  if(R == 58){
+    $("#r").html(S58);
+  }
+  if(R == 59){
+    $("#r").html(S59);
+  }
+  if(R == 60){
+    $("#r").html(S60);
+  }
+
+function sanctuary(){
+  if(R == 1){
+    $("#r").html(S1);
+  }
+  if(R == 2){
+    $("#r").html(S2);
+  }
+  if(R == 3){
+    $("#r").html(S3);
+  }
+  if(R == 4){
+    $("#r").html(S4);
+  }
+  if(R == 5){
+    $("#r").html(S5);
+  }
+  if(R == 6){
+    $("#r").html(S6);
+  }
+  if(R == 7){
+    $("#r").html(S7);
+  }
+  if(R == 8){
+    $("#r").html(S8);
+  }
+  if(R == 9){
+    $("#r").html(S9);
+  }
+  if(R == 10){
+    $("#r").html(S10);
+  }
+  if(R == 11){
+    $("#r").html(S11);
+  }
+  if(R == 12){
+    $("#r").html(S12);
+  }
+  if(R == 13){
+    $("#r").html(S13);
+  }
+  if(R == 14){
+    $("#r").html(S14);
+  }
+  if(R == 15){
+    $("#r").html(S15);
+  }
+  if(R == 16){
+    $("#r").html(S16);
+  }
+  if(R == 17){
+    $("#r").html(S17);
+  }
+  if(R == 18){
+    $("#r").html(S18);
+  }
+  if(R == 19){
+    $("#r").html(S19);
+  }
+  if(R == 20){
+    $("#r").html(S20);
+  }
+  if(R == 21){
+    $("#r").html(S21);
+  }
+  if(R == 22){
+    $("#r").html(S22);
+  }
+  if(R == 23){
+    $("#r").html(S23);
+  }
+  if(R == 24){
+    $("#r").html(S24);
+  }
+  if(R == 25){
+    $("#r").html(S25);
+  }
+  if(R == 26){
+    $("#r").html(S26);
+  }
+  if(R == 27){
+    $("#r").html(S27);
+  }
+  if(R == 28){
+    $("#r").html(S28);
+  }
+  if(R == 29){
+    $("#r").html(S29);
+  }
+  if(R == 30){
+    $("#r").html(S30);
+  }
+  if(R == 31){
+    $("#r").html(S31);
+  }
+  if(R == 32){
+    $("#r").html(S32);
+  }
+  if(R == 33){
+    $("#r").html(S33);
+  }
+  if(R == 34){
+    $("#r").html(S34);
+  }
+  if(R == 35){
+    $("#r").html(S35);
+  }
+  if(R == 36){
+    $("#r").html(S36);
+  }
+  if(R == 37){
+    $("#r").html(S37);
+  }
+  if(R == 38){
+    $("#r").html(S38);
+  }
+  if(R == 39){
+    $("#r").html(S39);
+  }
+  if(R == 40){
+    $("#r").html(S40);
+  }
+  if(R == 41){
+    $("#r").html(S41);
+  }
+  if(R == 42){
+    $("#r").html(S42);
+  }
+  if(R == 43){
+    $("#r").html(S43);
+  }
+  if(R == 44){
+    $("#r").html(S44);
+  }
+  if(R == 45){
+    $("#r").html(S45);
+  }
+  if(R == 46){
+    $("#r").html(S46);
+  }
+  if(R == 47){
+    $("#r").html(S47);
+  }
+  if(R == 48){
+    $("#r").html(S48);
+  }
+  if(R == 49){
+    $("#r").html(S49);
+  }
+  if(R == 50){
+    $("#r").html(S50);
+  }
+  if(R == 51){
+    $("#r").html(S51);
+  }
+  if(R == 52){
+    $("#r").html(S52);
+  }
+  if(R == 53){
+    $("#r").html(S53);
+  }
+  if(R == 54){
+    $("#r").html(S54);
+  }
+  if(R == 55){
+    $("#r").html(S55);
+  }
+  if(R == 56){
+    $("#r").html(S56);
+  }
+  if(R == 57){
+    $("#r").html(S57);
+  }
+  if(R == 58){
+    $("#r").html(S58);
+  }
+  if(R == 59){
+    $("#r").html(S59);
+  }
+  if(R == 60){
+    $("#r").html(S60);
+  }
+}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
